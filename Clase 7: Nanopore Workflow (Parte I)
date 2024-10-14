@@ -60,12 +60,17 @@ sudo apt install bcftools
 
 # 7.6.3 Samtools version 1.11
 
-conda install -c bioconda samtools==1.11
+conda install -c bioconda samtools==1.11    ## posiblemente debes crear un entorno primero
 
 # 7.1.6 : MEDAKA (si MEDAKA no funciona correctamente, instala los programas requeridos)
 
 conda install -c conda-forge –c bioconda medaka
 or
 pip install medaka
+or 
+conda create -n medaka_env python=3.8  ## crea primero un entorno para mekada 
+conda activate medaka_env  ## activa el entorno
+medaka --version  ## verifica si se instaló
+
 
 
