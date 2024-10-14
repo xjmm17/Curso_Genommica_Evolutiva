@@ -1,0 +1,21 @@
+# 4.1 Instalacion de prokka 
+
+conda create -n prokka_env ;
+conda activate prokka_env ;
+conda install -c conda-forge -c bioconda prokka ;
+
+# 4.2 Analisis en prokka 
+
+mkdir annotation/ ;
+for r1 in *fa
+do
+prefix=$(basename $r1 .fa)
+prokka --cpus 4 $r1 -o ${prefix} --prefix ${prefix} --kingdom Viruses ; 
+mv ${prefix}/*.gff annotation/${prefix}.gff
+done ;
+
+# 4.3 Instalacion de artemis 
+
+conda create -n art
+conda activate art
+conda install bioconda::artemis
