@@ -1,4 +1,5 @@
 # 8.1 Descargar la informacion (códigos SRR17110067 y SRR17110070)
+
 mkdir sra_files ;
 prefetch --max-size 50G --option-file accessions.txt ;
 mv */*.sra . ;
@@ -7,23 +8,47 @@ gzip *.fastq ;
 mkdir sra_files ;
 mv *.sra sra_files/ ;
 
+## (line 4) usé el prefetch SRR17110067 SRR17110070 ##
+
 # 8.2: inspeccionar las longitudes de los reads ##
+
 zcat SRR17110067.fastq.gz | grep -n "length" | cut -f2 -d'=' | sort -r -n | uniq | head -n 20
 zcat SRR17110070.fastq.gz | grep -n "length" | cut -f2 -d'=' | sort -r -n | uniq | head -n 20
 
 # 8.3: NanoPlot
+
 NanoPlot -t 2 -o SRR17110067_QC --fastq SRR17110067.fastq.gz
 NanoPlot -t 2 -o SRR17110070_QC --fastq SRR17110070.fastq.gz
 
 # 8.4: NanoFilt
+
 gunzip -c SRR17110067.fastq.gz | NanoFilt --logfile nanofilt.log -l 1000 -q 10 | gzip > SRR17110067.trim.fastq.gz ;
 gunzip -c SRR17110070.fastq.gz | NanoFilt --logfile nanofilt.log -l 1000 -q 10 | gzip > SRR17110070.trim.fastq.gz ;
 ls -lh ;
+
+# 8.4.2 NanoPlot de los archivos obtenidos con NanoFilt
+
+NanoPlot -t 2 -o SRR17110067_QC_trim --fastq SRR17110067.trim.fastq.gz
+NanoPlot -t 2 -o SRR17110070_QC_trim --fastq SRR17110070.trim.fastq.gz
 
 # 8.5: Flye
 flye -o SRR17110067.genoma --nano-raw SRR17110067.trim.fastq.gz --threads 4 ;
 flye -o SRR17110070.genoma --nano-raw SRR17110070.trim.fastq.gz --threads 4 ;
 ls -lh ;
+
+  ## OBTUVE EL ERROR CON SWAP ya que el mío tenía solo 2 Gi, así que tocó aumentarlo de la siguiente forma: 
+
+  ## Aumentar swap en 4Gi más:
+
+htop
+sudo fallocate -l 4G /swapfile 
+sudo chmod 600 /swapfile  #permisos
+sudo mkswap /swapfile  ##configurar el archivo como swap
+sudo fallocate -l 4G /swapfile
+sudo swapon /swapfile ##activa el swap
+
+free -h   ##verificar el espacio otra vez
+
 
 # 8.6 : Minimap2 + Racon (Polishing)
 minimap2 -x ava-ont -t 4 SRR17110067.genoma/assembly.fasta SRR17110067.trim.fastq.gz > overlaps1.paf ;
