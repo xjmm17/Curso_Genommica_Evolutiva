@@ -22,8 +22,8 @@ NanoPlot -t 2 -o SRR17110070_QC --fastq SRR17110070.fastq.gz
 
 # 8.4: NanoFilt
 
-gunzip -c SRR17110067.fastq.gz | NanoFilt --logfile nanofilt.log -l 500 -q 10 | gzip > SRR17110067.trim.fastq.gz ;
-gunzip -c SRR17110070.fastq.gz | NanoFilt --logfile nanofilt.log -l 500 -q 10 | gzip > SRR17110070.trim.fastq.gz ;
+gunzip -c SRR17110067.fastq.gz | NanoFilt --logfile nanofilt.log -l 1000 -q 10 | gzip > SRR17110067.trim.fastq.gz ;
+gunzip -c SRR17110070.fastq.gz | NanoFilt --logfile nanofilt.log -l 1000 -q 10 | gzip > SRR17110070.trim.fastq.gz ;
 ls -lh ;
 
 # 8.4.2 NanoPlot de los archivos obtenidos con NanoFilt
@@ -69,6 +69,7 @@ medaka_consensus -i SRR17110070.trim.fastq.gz -d SRR17110070.racon2.fasta -o med
 medaka_consensus -i SRR17110067.trim.fastq.gz -d SRR17110067.racon2.fasta -o medaka_SRR17110067 -t 4 ;
 
 # 8.8 : QUAST
+## 8.8.1 Installation
 quast.py -o quast_results -m 0 consensus.fasta     ## requiere el consensus.fasta de Medaka ##
 
 # 8.9 : Bandage
