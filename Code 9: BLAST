@@ -1,0 +1,79 @@
+# 9.1 : instalacion de BLAST a traves de CONDA
+
+conda install bioconda::blast
+or
+conda install -c conda-forge -c bioconda -c defaults blast
+
+# 9.2 : http://www.mgc.ac.cn/VFs/
+# 9.3 : Default webpage accessible to all users worldwide
+# 9.4 : Download
+# 9.5 : DNA sequences of full dataset
+# 9.6 : Protein sequences of full dataset
+# 9.6 :
+gzip -d VFDB_setB_nt.fas.gz 
+gzip -d VFDB_setB_pro.fas.gz
+
+# 9.7 : run BLAST+
+makeblastdb -in VFDB_setB_nt.fas -dbtype nucl ;
+blastn -db VFDB_setB_nt.fas -query GCA_001183825.1.fasta -perc_identity 90 -outfmt 6 -num_threads 4 > blast.csv ;
+head blast.csv ;
+cat blast.csv ;
+
+# 9.8 : headers
+sed '1i query.acc.ver subject.acc.ver perc.identity alignment.length mismatches gap.opens q.start q.end s.start s.end evalue bit.score' blast.csv | tr " " "\t" > blast.2.csv
+
+# 9.9 : revisar resultados
+head blast.2.csv
+cat blast.2.csv
+
+# 9.10 : instalar R
+conda install -c conda-forge -c bioconda -c defaults r-base
+
+# 9.11 : analizar los datos en R
+#leer la data resultante de blast#
+data <- read.csv("blast.2.csv", sep="\t", header=TRUE)
+#conocer el número de filas y columnas de la tabla resultante#
+dim(data)
+#conocer las filas asignadas a una columna determinada#
+length(data$subject.acc.ver)
+#conocer el número de elementos únicos de esa columna#
+length(unique(data$subject.acc.ver))
+length(unique(data$query.acc.ver))
+#conocer estadísticos básicos en un solo paso#
+summary(data$query.acc.ver)
+summary(data$alignment.length)
+#obtener un boxplot de los porcentajes de identidad#
+boxplot(data$perc.identity)
+boxplot(data$perc.identity, xlab="genoma", ylab="% identidad")
+summary(data$perc.identity)
+data.frame(names(data))
+#obtenet un plot longitud de alineamiento vs %identidad#
+plot(data$alignment.length, data$perc.identity, xlab="length", ylab="% identity", main="BLASTn VFDB vs Chlamydia", pch=16, col="blue", cex=2)
+
+# 9.12 : instalar bedtools desde conda para extraer las regiones "blasteadas"
+
+conda install conda install -c conda-forge -c bioconda -c defaults bedtools
+
+
+bedtools getfasta -fi  GCA_001183825.1.fasta -bed extract.txt -fo virulence.fasta
+
+# 9.13 : Generar un archivo "bed" con R
+
+#leer nuevamente en R#
+data <- read.csv("blast.2.csv", sep="\t", header=TRUE)
+#crear un objeto con las columnas requeridas para un archivo "bed"#
+head(data)
+seq <- data.frame(genome=data$query.acc.ver, start=data$q.start, end=data$q.end)
+head(seq)
+#generar el archivo "bed"#
+write.table(seq, "extract.txt", sep="\t", row.names = F, col.names =F, quot=F)
+
+# 9.14 : emplear "bedtools getfasta", identificar los argumentos # 
+
+bedtools getfasta -fi  GCA_001183825.1.fasta -bed extract.txt -fo virulence.fasta
+
+# 9.15 : extraer información de los headers de VFDB 
+grep ">" VFDB_setB_nt.fas | sed -e 's/]\ \[/*/g' | sed -e 's/]//g' | sed -e 's/\ \[/*/g'| sed -e 's/)\ /*/g' | sed -e 's/*(/*/g' | head -n 10 > headers.txt
+
+# 9.16 : traducir las secuencias con virtual ribosome #
+https://services.healthtech.dtu.dk/services/VirtualRibosome-2.0/
