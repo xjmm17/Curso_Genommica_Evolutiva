@@ -1,0 +1,12 @@
+# 10: Descargamos genomas de interés del NCBI en formato de table
+# Se obtienen/ guardan los códigos de accesión GCA = GCF en un archivo .txt
+
+#10.1: Instalamos NCBI_dataset
+conda create ncbi_dataset
+conda activate
+
+#10.2: Descargamos los genomas en la carpeta donde se tiene el .txt y el .sh
+
+while read -r accession; do
+    datasets download genome accession "$accession" --filename "${accession}.zip"
+done < accessions.txt
