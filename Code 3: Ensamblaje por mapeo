@@ -2,19 +2,19 @@
 
 # 3.1 Indexar el genoma de referencia
 
-bwa index reference.fasta ;
+bwa index NC_063383.1.fna ;   # en este caso la sec de referencia está en .fna pero es fasta
 
 # 3.2 Preparar las instrucciones generales
 
 for r1 in *fastq.gz
 do
-prefix=$(basename $r1 _1.fastq.gz)
-r2=${prefix}_2.fastq.gz
+  prefix=$(basename $r1 _1.fastq.gz)
+  r2="${prefix}_2.fastq.gz"
 
 # 3.3 Instrucciones para generar el archivo .bam
 
-bwa mem -t 4 reference.fasta $r1 $r2 > ${prefix}_uno.sam ;
-samtools view -@ 4 -bS -T reference.fasta ${prefix}_uno.sam > ${prefix}_unoa.bam ;
+bwa mem -t 4 NC_063383.1.fna $r1 $r2 > ${prefix}_uno.sam ;
+samtools view -@ 4 -bS -T NC_063383.1.fna ${prefix}_uno.sam > ${prefix}_unoa.bam ;
 samtools sort -@ 4 -n ${prefix}_unoa.bam -o ${prefix}_dosa.bam ;
 samtools fixmate -@ 4 -m ${prefix}_dosa.bam ${prefix}_tresa.bam ;
 samtools sort -@ 4 ${prefix}_tresa.bam -o ${prefix}_cuatroa.bam ;
